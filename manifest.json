@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Pomodoro Flow",
+  "version": "1.0.0",
+  "description": "A premium Pomodoro timer with dynamic visual feedback and a GitHub-style contribution graph.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications"
+  ],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  }
+}
