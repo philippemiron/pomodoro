@@ -1,4 +1,4 @@
-# Pomodoro Flow ⏱️
+# Pomodoro Flow 🍅
 
 A premium, modern Pomodoro browser extension designed to optimize focus, manage breaks, and track productivity with a GitHub-style contribution graph and hourly breakdowns.
 
@@ -42,6 +42,12 @@ A premium, modern Pomodoro browser extension designed to optimize focus, manage 
 2. Open Chrome and navigate to `chrome://extensions/`.
 3. Enable **Developer mode** (toggle in the top-right corner).
 4. Click **Load unpacked** and select the root directory (`pomodoro`) containing `manifest.json`.
+
+### Installation in Firefox
+1. Open Firefox and navigate to `about:debugging`.
+2. Click on **This Firefox** in the left sidebar.
+3. Click **Load Temporary Add-on...** under the **Temporary Extensions** section.
+4. Select the [manifest.json](manifest.json) file in the root directory.
 
 ### Development & Scripts
 Install dependencies:
