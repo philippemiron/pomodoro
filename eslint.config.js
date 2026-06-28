@@ -35,7 +35,7 @@ export default [
   },
   // Node.js files (tests, scripts, configs)
   {
-    files: ['tests/**/*.js', 'generate_icons.js', '*.config.js', 'eslint.config.js'],
+    files: ['tests/**/*.js', '*.config.js', 'eslint.config.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
