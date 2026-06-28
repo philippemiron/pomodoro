@@ -8,7 +8,7 @@ function crc32(buf) {
   for (let i = 0; i < buf.length; i++) {
     let c = (crc ^ buf[i]) & 0xff;
     for (let j = 0; j < 8; j++) {
-      c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
     }
     crc = (crc >>> 8) ^ c;
   }
@@ -41,7 +41,7 @@ function generatePng(size) {
 
   const cx = width / 2;
   const cy = height * 0.55; // Slightly lower center to leave room for the green stem
-  const rBodyX = size * 0.40;
+  const rBodyX = size * 0.4;
   const rBodyY = size * 0.32; // Slightly squashed vertically (plump tomato)
 
   // Light source position for 3D shading
@@ -59,7 +59,10 @@ function generatePng(size) {
 
       const bodyDist = (dx * dx) / (rBodyX * rBodyX) + (dy * dy) / (rBodyY * rBodyY);
 
-      let r = 0, g = 0, b = 0, a = 0;
+      let r = 0,
+        g = 0,
+        b = 0,
+        a = 0;
 
       // 1. Draw Green Stem & Leaves
       const lx_c = cx;
@@ -76,29 +79,35 @@ function generatePng(size) {
         const normAngle = angle * (180 / Math.PI); // Range: -180 to 180
 
         // Leaf 1: pointing up (-90 deg)
-        const d1 = Math.abs(normAngle - (-90));
-        const limit1 = size * 0.22 * Math.cos(d1 * Math.PI / 90);
+        const d1 = Math.abs(normAngle - -90);
+        const limit1 = size * 0.22 * Math.cos((d1 * Math.PI) / 90);
         if (d1 < 45 && dist < limit1) isLeaf = true;
 
         // Leaf 2: pointing left-up (-155 deg)
-        const d2 = Math.abs(normAngle - (-155));
-        const limit2 = size * 0.20 * Math.cos(d2 * Math.PI / 80);
+        const d2 = Math.abs(normAngle - -155);
+        const limit2 = size * 0.2 * Math.cos((d2 * Math.PI) / 80);
         if (d2 < 40 && dist < limit2) isLeaf = true;
 
         // Leaf 3: pointing right-up (-25 deg)
-        const d3 = Math.abs(normAngle - (-25));
-        const limit3 = size * 0.20 * Math.cos(d3 * Math.PI / 80);
+        const d3 = Math.abs(normAngle - -25);
+        const limit3 = size * 0.2 * Math.cos((d3 * Math.PI) / 80);
         if (d3 < 40 && dist < limit3) isLeaf = true;
 
         // Leaf 4: pointing left-down (-120 deg) - darker shadow
-        const d4 = Math.abs(normAngle - (-120));
-        const limit4 = size * 0.16 * Math.cos(d4 * Math.PI / 60);
-        if (d4 < 30 && dist < limit4) { isLeaf = true; leafShub = true; }
+        const d4 = Math.abs(normAngle - -120);
+        const limit4 = size * 0.16 * Math.cos((d4 * Math.PI) / 60);
+        if (d4 < 30 && dist < limit4) {
+          isLeaf = true;
+          leafShub = true;
+        }
 
         // Leaf 5: pointing right-down (-60 deg) - darker shadow
-        const d5 = Math.abs(normAngle - (-60));
-        const limit5 = size * 0.16 * Math.cos(d5 * Math.PI / 60);
-        if (d5 < 30 && dist < limit5) { isLeaf = true; leafShub = true; }
+        const d5 = Math.abs(normAngle - -60);
+        const limit5 = size * 0.16 * Math.cos((d5 * Math.PI) / 60);
+        if (d5 < 30 && dist < limit5) {
+          isLeaf = true;
+          leafShub = true;
+        }
       }
 
       // Vertical main stem
@@ -108,9 +117,15 @@ function generatePng(size) {
 
       if (isLeaf) {
         if (leafShub) {
-          r = 5; g = 150; b = 105; a = 255; // #059669 (Darker Green)
+          r = 5;
+          g = 150;
+          b = 105;
+          a = 255; // #059669 (Darker Green)
         } else {
-          r = 16; g = 185; b = 129; a = 255; // #10B981 (Vibrant Green)
+          r = 16;
+          g = 185;
+          b = 129;
+          a = 255; // #10B981 (Vibrant Green)
         }
       }
 
@@ -142,7 +157,7 @@ function generatePng(size) {
         const shineDist = Math.sqrt(shineDx * shineDx + shineDy * shineDy);
         const shineRadius = size * 0.08;
         if (shineDist <= shineRadius) {
-          const shineIntensity = 1 - (shineDist / shineRadius);
+          const shineIntensity = 1 - shineDist / shineRadius;
           r = Math.round(r + (255 - r) * shineIntensity * 0.65);
           g = Math.round(g + (255 - g) * shineIntensity * 0.65);
           b = Math.round(b + (255 - b) * shineIntensity * 0.65);
@@ -157,7 +172,7 @@ function generatePng(size) {
   }
 
   // PNG Signature
-  const sig = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+  const sig = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
   // IHDR chunk
   const ihdrData = Buffer.alloc(13);
@@ -185,7 +200,7 @@ if (!fs.existsSync(iconsDir)) {
   fs.mkdirSync(iconsDir, { recursive: true });
 }
 
-[16, 48, 128].forEach(size => {
+[16, 48, 128].forEach((size) => {
   const pngBuf = generatePng(size);
   fs.writeFileSync(path.join(iconsDir, `icon-${size}.png`), pngBuf);
   console.log(`Generated red tomato icon: icon-${size}.png (${pngBuf.length} bytes)`);

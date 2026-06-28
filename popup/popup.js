@@ -74,16 +74,19 @@ function setupTabs() {
 
 // Helper to save setting based on type
 async function saveDurationSetting(type, duration) {
-  const key = type === 'work' ? 'workDurationSetting' :
-              type === 'shortBreak' ? 'shortBreakDurationSetting' :
-              'longBreakDurationSetting';
+  const key =
+    type === 'work'
+      ? 'workDurationSetting'
+      : type === 'shortBreak'
+        ? 'shortBreakDurationSetting'
+        : 'longBreakDurationSetting';
   await chrome.storage.local.set({ [key]: duration });
 }
 
 // Setup Event Listeners
 function setupControls() {
   // Preset buttons
-  presetButtons.forEach(btn => {
+  presetButtons.forEach((btn) => {
     btn.addEventListener('click', async () => {
       const mins = parseInt(btn.dataset.time, 10);
       currentDuration = mins * 60;
@@ -96,7 +99,7 @@ function setupControls() {
       if (state.status === 'idle') {
         const newState = {
           ...state,
-          duration: currentDuration
+          duration: currentDuration,
         };
         await chrome.storage.local.set({ timerState: newState });
         updateTimerDisplay(currentDuration, currentDuration);
@@ -112,7 +115,7 @@ function setupControls() {
     if (mins > 180) mins = 180;
     customMinInput.value = mins;
 
-    presetButtons.forEach(b => b.classList.remove('active'));
+    presetButtons.forEach((b) => b.classList.remove('active'));
     currentDuration = mins * 60;
 
     const state = await getTimerState();
@@ -121,7 +124,7 @@ function setupControls() {
     if (state.status === 'idle') {
       const newState = {
         ...state,
-        duration: currentDuration
+        duration: currentDuration,
       };
       await chrome.storage.local.set({ timerState: newState });
       updateTimerDisplay(currentDuration, currentDuration);
@@ -129,7 +132,7 @@ function setupControls() {
   });
 
   // Mode switcher override buttons
-  modeButtons.forEach(btn => {
+  modeButtons.forEach((btn) => {
     btn.addEventListener('click', async () => {
       const state = await getTimerState();
       if (state.status !== 'idle') return; // Can only switch modes when idle
@@ -138,7 +141,7 @@ function setupControls() {
       const data = await chrome.storage.local.get([
         'workDurationSetting',
         'shortBreakDurationSetting',
-        'longBreakDurationSetting'
+        'longBreakDurationSetting',
       ]);
 
       let duration = 1500; // default 25m
@@ -149,7 +152,7 @@ function setupControls() {
       currentDuration = duration;
 
       // Update preset selection highlights
-      presetButtons.forEach(b => {
+      presetButtons.forEach((b) => {
         if (parseInt(b.dataset.time, 10) === duration / 60) {
           b.classList.add('active');
         } else {
@@ -174,7 +177,7 @@ function setupControls() {
         duration: duration,
         startTime: null,
         endTime: null,
-        pausedTimeRemaining: null
+        pausedTimeRemaining: null,
       };
 
       await chrome.storage.local.set({ timerState: newState });
@@ -232,7 +235,7 @@ async function startTimer(state) {
     duration: state.duration,
     startTime: state.status === 'paused' ? state.startTime : Date.now(),
     endTime: endTime,
-    pausedTimeRemaining: null
+    pausedTimeRemaining: null,
   };
 
   await chrome.storage.local.set({ timerState: newState });
@@ -259,7 +262,7 @@ async function pauseTimer(state) {
     duration: state.duration,
     startTime: state.startTime,
     endTime: null,
-    pausedTimeRemaining: timeRemaining
+    pausedTimeRemaining: timeRemaining,
   };
 
   await chrome.storage.local.set({ timerState: newState });
@@ -284,7 +287,7 @@ async function resetTimer() {
     duration: workDuration,
     startTime: null,
     endTime: null,
-    pausedTimeRemaining: null
+    pausedTimeRemaining: null,
   };
   await chrome.storage.local.set({ timerState: newState });
   await chrome.action.setBadgeText({ text: '' });
@@ -329,7 +332,7 @@ async function syncUI() {
   statusBadge.textContent = state.status;
 
   // Update Mode buttons active state
-  modeButtons.forEach(btn => {
+  modeButtons.forEach((btn) => {
     if (btn.dataset.mode === state.type) {
       btn.classList.add('active');
     } else {
@@ -435,10 +438,10 @@ function playChime(nextType) {
 
 // Toggle disable state of inputs
 function toggleInputs(enabled) {
-  presetButtons.forEach(btn => btn.disabled = !enabled);
+  presetButtons.forEach((btn) => (btn.disabled = !enabled));
   customMinInput.disabled = !enabled;
   setCustomBtn.disabled = !enabled;
-  modeButtons.forEach(btn => btn.disabled = !enabled);
+  modeButtons.forEach((btn) => (btn.disabled = !enabled));
 }
 
 // Update physical countdown digits and SVG progress bar
@@ -448,7 +451,7 @@ function updateTimerDisplay(remainingSeconds, totalSeconds) {
   timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
   const progressRatio = totalSeconds > 0 ? (totalSeconds - remainingSeconds) / totalSeconds : 1;
-  const offset = PROGRESS_RING_CIRCUMFERENCE - (progressRatio * PROGRESS_RING_CIRCUMFERENCE);
+  const offset = PROGRESS_RING_CIRCUMFERENCE - progressRatio * PROGRESS_RING_CIRCUMFERENCE;
   timerProgress.style.strokeDashoffset = offset;
 }
 
@@ -475,12 +478,12 @@ function renderCalendarGrid(history) {
   }
 
   const dailyTotals = {};
-  history.forEach(session => {
+  history.forEach((session) => {
     const dStr = formatDate(new Date(session.timestamp));
     dailyTotals[dStr] = (dailyTotals[dStr] || 0) + session.durationMinutes;
   });
 
-  dates.forEach(date => {
+  dates.forEach((date) => {
     const dStr = formatDate(date);
     const totalMins = dailyTotals[dStr] || 0;
 
@@ -504,7 +507,7 @@ function renderCalendarGrid(history) {
     });
 
     cell.addEventListener('click', () => {
-      document.querySelectorAll('.contrib-cell').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('.contrib-cell').forEach((c) => c.classList.remove('selected'));
       cell.classList.add('selected');
       selectedDateStr = dStr;
       renderHourlyGrid(history, dStr);
@@ -525,7 +528,7 @@ function renderHourlyGrid(history, targetDateStr) {
   hourlyViewTitle.textContent = `Hourly Breakdown (${formatFriendlyDate(new Date(targetDateStr + 'T00:00:00'))})`;
 
   const hourlyMins = Array(24).fill(0);
-  history.forEach(session => {
+  history.forEach((session) => {
     const dateObj = new Date(session.timestamp);
     const dStr = formatDate(dateObj);
     if (dStr === targetDateStr) {

@@ -20,12 +20,12 @@ describe('popup.js UI Integration', () => {
       const scriptPath = path.resolve(__dirname, '../popup/popup.js');
       scriptContent = fs.readFileSync(scriptPath, 'utf8');
     }
-    
+
     // Strip stylesheet and script links to prevent happy-dom from trying to fetch them
     const cleanHtml = htmlContent
       .replace(/<link rel="stylesheet" href="popup.css">/, '')
       .replace(/<script src="popup.js"><\/script>/, '');
-    
+
     // Set happy-dom body content
     document.body.innerHTML = cleanHtml;
   });
@@ -33,17 +33,17 @@ describe('popup.js UI Integration', () => {
   function executePopupScript() {
     const runScript = new Function(scriptContent);
     runScript();
-    
+
     document.dispatchEvent(new window.Event('DOMContentLoaded'));
   }
 
   it('should initialize UI with default idle timer and cycle labels', async () => {
     await chrome.storage.local.set({
-      timerState: { status: 'idle', type: 'work', pomodoroCount: 0, duration: 1500 }
+      timerState: { status: 'idle', type: 'work', pomodoroCount: 0, duration: 1500 },
     });
 
     executePopupScript();
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     const timerDisplay = document.getElementById('timer-display');
     expect(timerDisplay.textContent).toBe('25:00');
@@ -54,7 +54,7 @@ describe('popup.js UI Integration', () => {
     // Cycle Session 1 of 4 step label
     const cycleLabel = document.getElementById('cycle-label');
     expect(cycleLabel.textContent).toBe('Session 1 of 4');
-    
+
     // Verify dots count
     const dots = document.querySelectorAll('.step-dot');
     expect(dots.length).toBe(8);
@@ -64,16 +64,16 @@ describe('popup.js UI Integration', () => {
 
   it('should change default duration on preset button click', async () => {
     await chrome.storage.local.set({
-      timerState: { status: 'idle', type: 'work', pomodoroCount: 0, duration: 1500 }
+      timerState: { status: 'idle', type: 'work', pomodoroCount: 0, duration: 1500 },
     });
 
     executePopupScript();
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     const preset15 = document.querySelector('.preset-btn[data-time="15"]');
     preset15.click();
 
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     const timerDisplay = document.getElementById('timer-display');
     expect(timerDisplay.textContent).toBe('15:00');
@@ -81,16 +81,16 @@ describe('popup.js UI Integration', () => {
 
   it('should transition to running state and create alarm on Start click', async () => {
     await chrome.storage.local.set({
-      timerState: { status: 'idle', type: 'work', pomodoroCount: 0, duration: 1500 }
+      timerState: { status: 'idle', type: 'work', pomodoroCount: 0, duration: 1500 },
     });
 
     executePopupScript();
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     const startBtn = document.getElementById('start-pause-btn');
     startBtn.click();
 
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     const state = (await chrome.storage.local.get('timerState')).timerState;
     expect(state.status).toBe('running');
@@ -108,18 +108,18 @@ describe('popup.js UI Integration', () => {
         pomodoroCount: 0,
         duration: 1500,
         startTime: Date.now(),
-        endTime: Date.now() + 1000 * 1000
-      }
+        endTime: Date.now() + 1000 * 1000,
+      },
     });
 
     executePopupScript();
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     const startBtn = document.getElementById('start-pause-btn');
     expect(startBtn.textContent).toBe('Pause Session');
     startBtn.click();
 
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     const state = (await chrome.storage.local.get('timerState')).timerState;
     expect(state.status).toBe('paused');
@@ -131,12 +131,12 @@ describe('popup.js UI Integration', () => {
     await chrome.storage.local.set({
       history: [
         { timestamp: Date.now(), durationMinutes: 25 },
-        { timestamp: Date.now() - 24 * 60 * 60 * 1000, durationMinutes: 60 }
-      ]
+        { timestamp: Date.now() - 24 * 60 * 60 * 1000, durationMinutes: 60 },
+      ],
     });
 
     executePopupScript();
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     const cells = document.querySelectorAll('.contrib-cell');
     expect(cells.length).toBe(35);
@@ -150,11 +150,11 @@ describe('popup.js UI Integration', () => {
 
   it('should apply break-mode class and set green theme on break status', async () => {
     await chrome.storage.local.set({
-      timerState: { status: 'idle', type: 'shortBreak', pomodoroCount: 2, duration: 300 }
+      timerState: { status: 'idle', type: 'shortBreak', pomodoroCount: 2, duration: 300 },
     });
 
     executePopupScript();
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     // Body should have break-mode class
     expect(document.body.className).toContain('break-mode');
@@ -174,17 +174,17 @@ describe('popup.js UI Integration', () => {
 
   it('should switch mode manually on mode button click', async () => {
     await chrome.storage.local.set({
-      timerState: { status: 'idle', type: 'work', pomodoroCount: 1, duration: 1500 }
+      timerState: { status: 'idle', type: 'work', pomodoroCount: 1, duration: 1500 },
     });
 
     executePopupScript();
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     // Click short break mode selector
     const shortBreakModeBtn = document.getElementById('mode-short');
     shortBreakModeBtn.click();
 
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 20));
 
     // Storage state type should change to shortBreak, duration 300 (5m), body should have break-mode
     const state = (await chrome.storage.local.get('timerState')).timerState;

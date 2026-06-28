@@ -1,137 +1,171 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pomodoro Flow</title>
-  <link rel="stylesheet" href="popup.css">
-</head>
-<body>
-  <div class="app-container">
-    <!-- Header -->
-    <header class="app-header">
-      <div class="logo-area">
-        <svg class="tomato-logo" viewBox="0 0 32 32" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="16" cy="18" rx="11" ry="9" fill="url(#tomato-grad)" />
-          <ellipse cx="12.5" cy="14.5" rx="3.5" ry="1.8" fill="rgba(255, 255, 255, 0.65)" transform="rotate(-15 12.5 14.5)" />
-          <path d="M16 9C16 9 13.5 4 12 3.5C14.5 4.5 15.5 8 16 9Z" fill="#10B981" />
-          <path d="M16 9C16 9 10 7.5 7.5 8.5C10 9 13.5 9 16 9Z" fill="#10B981" />
-          <path d="M16 9C16 9 22 7.5 24.5 8.5C22 9 18.5 9 16 9Z" fill="#10B981" />
-          <path d="M16 9C16 9 16.5 12 18 13.5C16.5 12.5 16 10 16 9Z" fill="#059669" />
-          <path d="M16 9C16 9 15.5 12 14 13.5C15.5 12.5 16 10 16 9Z" fill="#059669" />
-          <defs>
-            <radialGradient id="tomato-grad" cx="40%" cy="30%" r="65%" fx="40%" fy="30%">
-              <stop offset="0%" stop-color="#FF6B6B" />
-              <stop offset="60%" stop-color="#EF4444" />
-              <stop offset="100%" stop-color="#B91C1C" />
-            </radialGradient>
-          </defs>
-        </svg>
-        <h1>Pomodoro Flow</h1>
-      </div>
-      <div id="status-badge" class="status-badge idle">Idle</div>
-    </header>
-
-    <!-- Cycle Steps Indicator -->
-    <div class="cycle-indicator-container">
-      <div id="cycle-label" class="cycle-label">Session 1 of 4</div>
-      <div class="cycle-steps" id="cycle-steps">
-        <span class="step-dot work-dot" data-step="1"></span>
-        <span class="step-dot break-dot" data-step="2"></span>
-        <span class="step-dot work-dot" data-step="3"></span>
-        <span class="step-dot break-dot" data-step="4"></span>
-        <span class="step-dot work-dot" data-step="5"></span>
-        <span class="step-dot break-dot" data-step="6"></span>
-        <span class="step-dot work-dot" data-step="7"></span>
-        <span class="step-dot break-dot" data-step="8"></span>
-      </div>
-    </div>
-
-    <!-- Timer Display Section -->
-    <main class="timer-section">
-      <!-- Mode Switcher -->
-      <div class="mode-selector">
-        <button id="mode-work" class="mode-btn active" data-mode="work">Work</button>
-        <button id="mode-short" class="mode-btn" data-mode="shortBreak">Short Break</button>
-        <button id="mode-long" class="mode-btn" data-mode="longBreak">Long Break</button>
-      </div>
-
-      <div class="timer-circle-wrapper">
-        <div class="timer-glow"></div>
-        <div class="timer-circle">
-          <svg class="progress-ring" width="200" height="200">
-            <circle class="progress-ring-circle-bg" stroke="rgba(255, 255, 255, 0.05)" stroke-width="8" fill="transparent" r="90" cx="100" cy="100"/>
-            <circle class="progress-ring-circle" id="timer-progress" stroke="var(--primary)" stroke-width="8" stroke-dasharray="565.48" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" r="90" cx="100" cy="100"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pomodoro Flow</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="logo-area">
+          <svg
+            class="tomato-logo"
+            viewBox="0 0 32 32"
+            width="24"
+            height="24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <ellipse cx="16" cy="18" rx="11" ry="9" fill="url(#tomato-grad)" />
+            <ellipse
+              cx="12.5"
+              cy="14.5"
+              rx="3.5"
+              ry="1.8"
+              fill="rgba(255, 255, 255, 0.65)"
+              transform="rotate(-15 12.5 14.5)"
+            />
+            <path d="M16 9C16 9 13.5 4 12 3.5C14.5 4.5 15.5 8 16 9Z" fill="#10B981" />
+            <path d="M16 9C16 9 10 7.5 7.5 8.5C10 9 13.5 9 16 9Z" fill="#10B981" />
+            <path d="M16 9C16 9 22 7.5 24.5 8.5C22 9 18.5 9 16 9Z" fill="#10B981" />
+            <path d="M16 9C16 9 16.5 12 18 13.5C16.5 12.5 16 10 16 9Z" fill="#059669" />
+            <path d="M16 9C16 9 15.5 12 14 13.5C15.5 12.5 16 10 16 9Z" fill="#059669" />
+            <defs>
+              <radialGradient id="tomato-grad" cx="40%" cy="30%" r="65%" fx="40%" fy="30%">
+                <stop offset="0%" stop-color="#FF6B6B" />
+                <stop offset="60%" stop-color="#EF4444" />
+                <stop offset="100%" stop-color="#B91C1C" />
+              </radialGradient>
+            </defs>
           </svg>
-          <div class="timer-time" id="timer-display">25:00</div>
+          <h1>Pomodoro Flow</h1>
+        </div>
+        <div id="status-badge" class="status-badge idle">Idle</div>
+      </header>
+
+      <!-- Cycle Steps Indicator -->
+      <div class="cycle-indicator-container">
+        <div id="cycle-label" class="cycle-label">Session 1 of 4</div>
+        <div class="cycle-steps" id="cycle-steps">
+          <span class="step-dot work-dot" data-step="1"></span>
+          <span class="step-dot break-dot" data-step="2"></span>
+          <span class="step-dot work-dot" data-step="3"></span>
+          <span class="step-dot break-dot" data-step="4"></span>
+          <span class="step-dot work-dot" data-step="5"></span>
+          <span class="step-dot break-dot" data-step="6"></span>
+          <span class="step-dot work-dot" data-step="7"></span>
+          <span class="step-dot break-dot" data-step="8"></span>
         </div>
       </div>
 
-      <!-- Quick Session Presets -->
-      <section class="duration-controls">
-        <div class="preset-buttons">
-          <button class="preset-btn" data-time="15">15m</button>
-          <button class="preset-btn active" data-time="25">25m</button>
-          <button class="preset-btn" data-time="45">45m</button>
-          <button class="preset-btn" data-time="60">60m</button>
+      <!-- Timer Display Section -->
+      <main class="timer-section">
+        <!-- Mode Switcher -->
+        <div class="mode-selector">
+          <button id="mode-work" class="mode-btn active" data-mode="work">Work</button>
+          <button id="mode-short" class="mode-btn" data-mode="shortBreak">Short Break</button>
+          <button id="mode-long" class="mode-btn" data-mode="longBreak">Long Break</button>
         </div>
-        <div class="custom-duration-wrapper">
-          <label for="custom-min">Custom:</label>
-          <input type="number" id="custom-min" min="1" max="180" value="25" placeholder="Min">
-          <button id="set-custom-btn" class="sub-btn">Set</button>
-        </div>
-      </section>
 
-      <!-- Action Buttons -->
-      <section class="action-controls">
-        <button id="start-pause-btn" class="primary-btn">Start Session</button>
-        <button id="reset-btn" class="secondary-btn">Reset</button>
-      </section>
-    </main>
-
-    <!-- Analytics Section -->
-    <footer class="analytics-section">
-      <div class="analytics-tabs">
-        <button class="tab-btn active" id="tab-calendar">30-Day Activity</button>
-        <button class="tab-btn" id="tab-hourly">Hourly Breakdown</button>
-      </div>
-
-      <div class="tab-content" id="calendar-view">
-        <div class="grid-legend-wrapper">
-          <div class="grid-labels">
-            <span>Mon</span>
-            <span>Wed</span>
-            <span>Fri</span>
+        <div class="timer-circle-wrapper">
+          <div class="timer-glow"></div>
+          <div class="timer-circle">
+            <svg class="progress-ring" width="200" height="200">
+              <circle
+                class="progress-ring-circle-bg"
+                stroke="rgba(255, 255, 255, 0.05)"
+                stroke-width="8"
+                fill="transparent"
+                r="90"
+                cx="100"
+                cy="100"
+              />
+              <circle
+                class="progress-ring-circle"
+                id="timer-progress"
+                stroke="var(--primary)"
+                stroke-width="8"
+                stroke-dasharray="565.48"
+                stroke-dashoffset="0"
+                stroke-linecap="round"
+                fill="transparent"
+                r="90"
+                cx="100"
+                cy="100"
+              />
+            </svg>
+            <div class="timer-time" id="timer-display">25:00</div>
           </div>
-          <div class="contribution-grid" id="contribution-grid">
-            <!-- Dynamically populated 35 cells (5 weeks * 7 days) -->
-          </div>
         </div>
-        <div class="graph-footer">
-          <span class="day-stats" id="selected-day-stats">Hover/click a cell for info</span>
-          <div class="legend">
-            <span>Less</span>
-            <span class="legend-cell level-0"></span>
-            <span class="legend-cell level-1"></span>
-            <span class="legend-cell level-2"></span>
-            <span class="legend-cell level-3"></span>
-            <span class="legend-cell level-4"></span>
-            <span>More</span>
-          </div>
-        </div>
-      </div>
 
-      <div class="tab-content hidden" id="hourly-view">
-        <h4 id="hourly-view-title">Hourly Breakdown (Today)</h4>
-        <div class="hourly-grid" id="hourly-grid">
-          <!-- Dynamically populated 24 cells for hours -->
+        <!-- Quick Session Presets -->
+        <section class="duration-controls">
+          <div class="preset-buttons">
+            <button class="preset-btn" data-time="15">15m</button>
+            <button class="preset-btn active" data-time="25">25m</button>
+            <button class="preset-btn" data-time="45">45m</button>
+            <button class="preset-btn" data-time="60">60m</button>
+          </div>
+          <div class="custom-duration-wrapper">
+            <label for="custom-min">Custom:</label>
+            <input type="number" id="custom-min" min="1" max="180" value="25" placeholder="Min" />
+            <button id="set-custom-btn" class="sub-btn">Set</button>
+          </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <section class="action-controls">
+          <button id="start-pause-btn" class="primary-btn">Start Session</button>
+          <button id="reset-btn" class="secondary-btn">Reset</button>
+        </section>
+      </main>
+
+      <!-- Analytics Section -->
+      <footer class="analytics-section">
+        <div class="analytics-tabs">
+          <button class="tab-btn active" id="tab-calendar">30-Day Activity</button>
+          <button class="tab-btn" id="tab-hourly">Hourly Breakdown</button>
         </div>
-        <div class="graph-footer">
-          <span class="hourly-stats" id="hourly-cell-stats">Hover over an hour cell</span>
+
+        <div class="tab-content" id="calendar-view">
+          <div class="grid-legend-wrapper">
+            <div class="grid-labels">
+              <span>Mon</span>
+              <span>Wed</span>
+              <span>Fri</span>
+            </div>
+            <div class="contribution-grid" id="contribution-grid">
+              <!-- Dynamically populated 35 cells (5 weeks * 7 days) -->
+            </div>
+          </div>
+          <div class="graph-footer">
+            <span class="day-stats" id="selected-day-stats">Hover/click a cell for info</span>
+            <div class="legend">
+              <span>Less</span>
+              <span class="legend-cell level-0"></span>
+              <span class="legend-cell level-1"></span>
+              <span class="legend-cell level-2"></span>
+              <span class="legend-cell level-3"></span>
+              <span class="legend-cell level-4"></span>
+              <span>More</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </footer>
-  </div>
-  <script src="popup.js"></script>
-</body>
+
+        <div class="tab-content hidden" id="hourly-view">
+          <h4 id="hourly-view-title">Hourly Breakdown (Today)</h4>
+          <div class="hourly-grid" id="hourly-grid">
+            <!-- Dynamically populated 24 cells for hours -->
+          </div>
+          <div class="graph-footer">
+            <span class="hourly-stats" id="hourly-cell-stats">Hover over an hour cell</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <script src="popup.js"></script>
+  </body>
 </html>

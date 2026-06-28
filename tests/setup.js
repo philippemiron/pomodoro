@@ -21,7 +21,7 @@ const chromeMock = {
         }
         if (Array.isArray(keys)) {
           const res = {};
-          keys.forEach(k => {
+          keys.forEach((k) => {
             res[k] = mockStorage[k];
           });
           return Promise.resolve(res);
@@ -35,15 +35,15 @@ const chromeMock = {
       clear: vi.fn().mockImplementation(() => {
         mockStorage = {};
         return Promise.resolve();
-      })
-    }
+      }),
+    },
   },
   alarms: {
     create: vi.fn(),
     clear: vi.fn().mockImplementation(() => Promise.resolve(true)),
     onAlarm: {
       addListener: vi.fn(),
-    }
+    },
   },
   notifications: {
     create: vi.fn(),
@@ -51,7 +51,7 @@ const chromeMock = {
   action: {
     setBadgeText: vi.fn().mockImplementation(() => Promise.resolve()),
     setBadgeBackgroundColor: vi.fn().mockImplementation(() => Promise.resolve()),
-  }
+  },
 };
 
 // Define globally

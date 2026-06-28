@@ -14,9 +14,9 @@ chrome.runtime.onInstalled.addListener(async () => {
         duration: 1500, // 25 minutes default
         startTime: null,
         endTime: null,
-        pausedTimeRemaining: null
+        pausedTimeRemaining: null,
       },
-      history: [] // Array of { timestamp: number, durationMinutes: number }
+      history: [], // Array of { timestamp: number, durationMinutes: number }
     });
   }
 });
@@ -35,11 +35,11 @@ async function handleTimerCompletion() {
     'history',
     'workDurationSetting',
     'shortBreakDurationSetting',
-    'longBreakDurationSetting'
+    'longBreakDurationSetting',
   ]);
   const state = data.timerState || {};
   const history = data.history || [];
-  
+
   // Custom settings with fallback to defaults
   const workDuration = data.workDurationSetting || 1500; // 25 mins
   const shortBreakDuration = data.shortBreakDurationSetting || 300; // 5 mins
@@ -59,7 +59,7 @@ async function handleTimerCompletion() {
     // Log work session
     newSession = {
       timestamp: Date.now(),
-      durationMinutes: completedDurationMinutes
+      durationMinutes: completedDurationMinutes,
     };
     history.push(newSession);
 
@@ -72,14 +72,14 @@ async function handleTimerCompletion() {
       nextType = 'shortBreak';
       nextDuration = shortBreakDuration;
     }
-    
+
     title = 'Work Session Complete!';
     message = `Great job! Take a ${nextType === 'longBreak' ? Math.round(longBreakDuration / 60) : Math.round(shortBreakDuration / 60)}-minute break.`;
   } else {
     // Break finished, transition to work
     nextType = 'work';
     nextDuration = workDuration;
-    
+
     title = 'Break Over!';
     message = 'Ready to focus? Start your next work session!';
   }
@@ -91,12 +91,12 @@ async function handleTimerCompletion() {
     duration: nextDuration,
     startTime: Date.now(),
     endTime: Date.now() + nextDuration * 1000,
-    pausedTimeRemaining: null
+    pausedTimeRemaining: null,
   };
 
   await chrome.storage.local.set({
     timerState: newState,
-    history: history
+    history: history,
   });
 
   // Register the next alarm in the sequence automatically
@@ -116,16 +116,18 @@ async function handleTimerCompletion() {
     iconUrl: 'icons/icon-128.png',
     title: title,
     message: message,
-    priority: 2
+    priority: 2,
   });
 
   // Play the audio chime
   playChime(nextType);
 
   // Broadcast to popup if open
-  chrome.runtime.sendMessage({ type: 'TIMER_COMPLETED', session: newSession, nextState: newState }).catch(() => {
-    // Ignore error if popup is closed
-  });
+  chrome.runtime
+    .sendMessage({ type: 'TIMER_COMPLETED', session: newSession, nextState: newState })
+    .catch(() => {
+      // Ignore error if popup is closed
+    });
 }
 
 // Play audio chime if context allows (Firefox background page support)

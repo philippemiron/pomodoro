@@ -9,13 +9,13 @@ describe('background.js', () => {
 
   it('should initialize state onInstalled', async () => {
     await import('../background.js');
-    
+
     const onInstalledCall = chrome.runtime.onInstalled.addListener.mock.calls[0];
     expect(onInstalledCall).toBeDefined();
-    
+
     const listenerCallback = onInstalledCall[0];
     await listenerCallback();
-    
+
     const state = await chrome.storage.local.get(['timerState', 'history']);
     expect(state.timerState.status).toBe('idle');
     expect(state.timerState.type).toBe('work');
@@ -26,7 +26,7 @@ describe('background.js', () => {
 
   it('should log work session, progress pomodoro count, and switch to shortBreak', async () => {
     await import('../background.js');
-    
+
     await chrome.storage.local.set({
       timerState: {
         status: 'running',
@@ -34,9 +34,9 @@ describe('background.js', () => {
         pomodoroCount: 0,
         duration: 1500,
         startTime: Date.now() - 1500 * 1000,
-        endTime: Date.now()
+        endTime: Date.now(),
       },
-      history: []
+      history: [],
     });
 
     const onAlarmCall = chrome.alarms.onAlarm.addListener.mock.calls[0];
@@ -48,7 +48,7 @@ describe('background.js', () => {
     const data = await chrome.storage.local.get(['timerState', 'history']);
     expect(data.history.length).toBe(1);
     expect(data.history[0].durationMinutes).toBe(25);
-    
+
     // Timer state should be set to running, with next session type = shortBreak, count = 1, duration = 5 mins
     expect(data.timerState.status).toBe('running');
     expect(data.timerState.type).toBe('shortBreak');
@@ -60,21 +60,21 @@ describe('background.js', () => {
       'pomodoro-complete',
       expect.objectContaining({
         title: 'Work Session Complete!',
-        message: expect.stringContaining('5-minute break')
-      })
+        message: expect.stringContaining('5-minute break'),
+      }),
     );
 
     // Assert action badge set to ON
     expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: 'ON' });
     expect(chrome.action.setBadgeBackgroundColor).toHaveBeenCalledWith({ color: '#10B981' });
-    
+
     // Assert next alarm was scheduled
     expect(chrome.alarms.create).toHaveBeenCalledWith('pomodoroTimer', { delayInMinutes: 5 });
   });
 
   it('should transition to longBreak after 4 completed work sessions', async () => {
     await import('../background.js');
-    
+
     await chrome.storage.local.set({
       timerState: {
         status: 'running',
@@ -82,16 +82,16 @@ describe('background.js', () => {
         pomodoroCount: 3, // 3 sessions completed, completing this makes 4
         duration: 1500,
         startTime: Date.now() - 1500 * 1000,
-        endTime: Date.now()
+        endTime: Date.now(),
       },
-      history: []
+      history: [],
     });
 
     const alarmCallback = chrome.alarms.onAlarm.addListener.mock.calls[0][0];
     await alarmCallback({ name: 'pomodoroTimer' });
 
     const data = await chrome.storage.local.get(['timerState', 'history']);
-    
+
     // Type should be longBreak, duration 15 mins (900s), count reset to 0
     expect(data.timerState.status).toBe('running');
     expect(data.timerState.type).toBe('longBreak');
@@ -102,8 +102,8 @@ describe('background.js', () => {
       'pomodoro-complete',
       expect.objectContaining({
         title: 'Work Session Complete!',
-        message: expect.stringContaining('15-minute break')
-      })
+        message: expect.stringContaining('15-minute break'),
+      }),
     );
 
     expect(chrome.alarms.create).toHaveBeenCalledWith('pomodoroTimer', { delayInMinutes: 15 });
@@ -111,7 +111,7 @@ describe('background.js', () => {
 
   it('should transition from break to work mode on alarm completion', async () => {
     await import('../background.js');
-    
+
     await chrome.storage.local.set({
       timerState: {
         status: 'running',
@@ -119,16 +119,16 @@ describe('background.js', () => {
         pomodoroCount: 1,
         duration: 300,
         startTime: Date.now() - 300 * 1000,
-        endTime: Date.now()
+        endTime: Date.now(),
       },
-      history: []
+      history: [],
     });
 
     const alarmCallback = chrome.alarms.onAlarm.addListener.mock.calls[0][0];
     await alarmCallback({ name: 'pomodoroTimer' });
 
     const data = await chrome.storage.local.get(['timerState', 'history']);
-    
+
     // Next type should be work, count retained (1), duration 25 mins (1500s)
     expect(data.timerState.status).toBe('running');
     expect(data.timerState.type).toBe('work');
@@ -140,8 +140,8 @@ describe('background.js', () => {
       'pomodoro-complete',
       expect.objectContaining({
         title: 'Break Over!',
-        message: expect.stringContaining('Start your next work session')
-      })
+        message: expect.stringContaining('Start your next work session'),
+      }),
     );
 
     expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: 'ON' });
@@ -151,7 +151,7 @@ describe('background.js', () => {
 
   it('should sequence a full Pomodoro cycle (4 work sessions, 3 short breaks, 1 long break)', async () => {
     await import('../background.js');
-    
+
     // Helper to simulate alarm trigger
     const alarmCallback = chrome.alarms.onAlarm.addListener.mock.calls[0][0];
     const triggerCompletion = async () => {
@@ -160,7 +160,7 @@ describe('background.js', () => {
       current.status = 'running';
       current.endTime = Date.now();
       await chrome.storage.local.set({ timerState: current });
-      
+
       await alarmCallback({ name: 'pomodoroTimer' });
     };
 
@@ -215,7 +215,7 @@ describe('background.js', () => {
     state = (await chrome.storage.local.get('timerState')).timerState;
     expect(state.type).toBe('work');
     expect(state.pomodoroCount).toBe(0);
-    
+
     // Assert 4 work sessions logged to history
     const history = (await chrome.storage.local.get('history')).history;
     expect(history.length).toBe(4);
