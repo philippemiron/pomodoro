@@ -54,9 +54,13 @@ body {
 }
 
 .tomato-logo {
+  font-size: 20px;
+  line-height: 24px;
   width: 24px;
   height: 24px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   vertical-align: middle;
   filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.4));
   transition: filter 0.3s ease;
