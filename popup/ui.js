@@ -119,7 +119,7 @@ export function setupControls() {
       } else if (mode === 'longBreak') {
         nextCount = 0;
       } else if (mode === 'work') {
-        if (nextCount >= 4) nextCount = 0;
+        nextCount = 0;
       }
 
       const newState = {
