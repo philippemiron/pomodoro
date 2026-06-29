@@ -36,6 +36,7 @@ async function handleTimerCompletion() {
     'workDurationSetting',
     'shortBreakDurationSetting',
     'longBreakDurationSetting',
+    'sessionsPerCycleSetting',
   ]);
   const state = data.timerState || {};
   const history = data.history || [];
@@ -44,6 +45,7 @@ async function handleTimerCompletion() {
   const workDuration = data.workDurationSetting || 1500; // 25 mins
   const shortBreakDuration = data.shortBreakDurationSetting || 300; // 5 mins
   const longBreakDuration = data.longBreakDurationSetting || 900; // 15 mins
+  const sessionsPerCycle = data.sessionsPerCycleSetting || 4; // 4 sessions
 
   const completedDurationMinutes = Math.round((state.duration || 1500) / 60);
 
@@ -64,7 +66,7 @@ async function handleTimerCompletion() {
     history.push(newSession);
 
     nextPomodoroCount += 1;
-    if (nextPomodoroCount >= 4) {
+    if (nextPomodoroCount >= sessionsPerCycle) {
       nextType = 'longBreak';
       nextDuration = longBreakDuration;
       nextPomodoroCount = 0; // Reset counter after scheduling long break

@@ -10,8 +10,8 @@ import {
 import { renderStats } from './analytics.js';
 import { playChime } from './audio.js';
 
-const PROGRESS_RING_RADIUS = 90;
-const PROGRESS_RING_CIRCUMFERENCE = 2 * Math.PI * PROGRESS_RING_RADIUS; // ~565.48
+const PROGRESS_RING_RADIUS = 80;
+const PROGRESS_RING_CIRCUMFERENCE = 2 * Math.PI * PROGRESS_RING_RADIUS; // ~502.65
 
 export function setupTabs() {
   const tabCalendar = document.getElementById('tab-calendar');
@@ -42,6 +42,25 @@ export function setupControls() {
   const modeButtons = document.querySelectorAll('.mode-btn');
   const startPauseBtn = document.getElementById('start-pause-btn');
   const resetBtn = document.getElementById('reset-btn');
+  const sessionsPerCycleSelect = document.getElementById('sessions-per-cycle');
+
+  if (sessionsPerCycleSelect) {
+    chrome.storage.local.get('sessionsPerCycleSetting', (data) => {
+      sessionsPerCycleSelect.value = data.sessionsPerCycleSetting || '4';
+    });
+
+    sessionsPerCycleSelect.addEventListener('change', async (e) => {
+      const val = parseInt(e.target.value, 10);
+      await chrome.storage.local.set({ sessionsPerCycleSetting: val });
+
+      const state = await getTimerState();
+      if (state.pomodoroCount >= val) {
+        state.pomodoroCount = 0;
+        await chrome.storage.local.set({ timerState: state });
+      }
+      await syncUI();
+    });
+  }
 
   // Preset buttons
   presetButtons.forEach((btn) => {
@@ -114,8 +133,12 @@ export function setupControls() {
       if (customMinInput) customMinInput.value = Math.round(duration / 60);
 
       let nextCount = state.pomodoroCount || 0;
+
+      const settingsData = await chrome.storage.local.get('sessionsPerCycleSetting');
+      const sessionsPerCycle = settingsData.sessionsPerCycleSetting || 4;
+
       if (mode === 'shortBreak') {
-        if (nextCount === 0 || nextCount >= 4) nextCount = 1;
+        if (nextCount === 0 || nextCount >= sessionsPerCycle) nextCount = 1;
       } else if (mode === 'longBreak') {
         nextCount = 0;
       } else if (mode === 'work') {
@@ -213,11 +236,14 @@ export async function syncUI() {
   });
 
   const cycleLabel = document.getElementById('cycle-label');
-  const stepDots = document.querySelectorAll('.step-dot');
+  const cycleSteps = document.getElementById('cycle-steps');
+  const settingsData = await chrome.storage.local.get('sessionsPerCycleSetting');
+  const sessionsPerCycle = settingsData.sessionsPerCycleSetting || 4;
+
   const count = state.pomodoroCount || 0;
   if (cycleLabel) {
     if (state.type === 'work') {
-      cycleLabel.textContent = `Session ${count + 1} of 4`;
+      cycleLabel.textContent = `Session ${count + 1} of ${sessionsPerCycle}`;
     } else if (state.type === 'shortBreak') {
       cycleLabel.textContent = 'Short Break';
     } else if (state.type === 'longBreak') {
@@ -225,22 +251,26 @@ export async function syncUI() {
     }
   }
 
-  stepDots.forEach((dot, index) => {
-    let isActive = false;
-    if (state.type === 'longBreak') {
-      isActive = true;
-    } else if (state.type === 'work') {
-      isActive = index <= 2 * count;
-    } else {
-      isActive = index <= 2 * count - 1;
-    }
+  if (cycleSteps) {
+    cycleSteps.innerHTML = '';
+    const totalDots = sessionsPerCycle * 2;
+    for (let i = 0; i < totalDots; i++) {
+      const dot = document.createElement('span');
+      dot.className = `step-dot ${i % 2 === 0 ? 'work-dot' : 'break-dot'}`;
 
-    if (isActive) {
-      dot.classList.add('active');
-    } else {
-      dot.classList.remove('active');
+      let isActive = false;
+      if (state.type === 'longBreak') {
+        isActive = true;
+      } else if (state.type === 'work') {
+        isActive = i <= 2 * count;
+      } else {
+        isActive = i <= 2 * count - 1;
+      }
+
+      if (isActive) dot.classList.add('active');
+      cycleSteps.appendChild(dot);
     }
-  });
+  }
 
   const timerCircleWrapper = document.querySelector('.timer-circle-wrapper');
   const startPauseBtn = document.getElementById('start-pause-btn');
@@ -281,10 +311,12 @@ export function toggleInputs(enabled) {
   const customMinInput = document.getElementById('custom-min');
   const setCustomBtn = document.getElementById('set-custom-btn');
   const modeButtons = document.querySelectorAll('.mode-btn');
+  const sessionsPerCycleSelect = document.getElementById('sessions-per-cycle');
 
   presetButtons.forEach((btn) => (btn.disabled = !enabled));
   if (customMinInput) customMinInput.disabled = !enabled;
   if (setCustomBtn) setCustomBtn.disabled = !enabled;
+  if (sessionsPerCycleSelect) sessionsPerCycleSelect.disabled = !enabled;
   modeButtons.forEach((btn) => (btn.disabled = !enabled));
 }
 
