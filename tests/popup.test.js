@@ -1,13 +1,14 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { resetChromeMocks } from './setup.js';
 import fs from 'fs';
 import path from 'path';
 
+let popupModule;
+
 describe('popup.js UI Integration', () => {
   let htmlContent;
-  let scriptContent;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     resetChromeMocks();
 
     // Load popup HTML template
@@ -16,25 +17,28 @@ describe('popup.js UI Integration', () => {
       htmlContent = fs.readFileSync(htmlPath, 'utf8');
     }
 
-    if (!scriptContent) {
-      const scriptPath = path.resolve(__dirname, '../popup/popup.js');
-      scriptContent = fs.readFileSync(scriptPath, 'utf8');
-    }
-
     // Strip stylesheet and script links to prevent happy-dom from trying to fetch them
     const cleanHtml = htmlContent
-      .replace(/<link rel="stylesheet" href="popup.css">/, '')
-      .replace(/<script src="popup.js"><\/script>/, '');
+      .replace(/<link rel="stylesheet" href="popup.css"\s*\/>/, '')
+      .replace(/<script type="module" src="popup.js"><\/script>/, '');
 
     // Set happy-dom body content
     document.body.innerHTML = cleanHtml;
+
+    if (!popupModule) {
+      popupModule = await import('../popup/popup.js');
+    }
   });
 
-  function executePopupScript() {
-    const runScript = new Function(scriptContent);
-    runScript();
+  afterEach(() => {
+    if (popupModule && popupModule.cleanup) {
+      popupModule.cleanup();
+    }
+  });
 
-    document.dispatchEvent(new window.Event('DOMContentLoaded'));
+  async function executePopupScript() {
+    await popupModule.init();
+    await new Promise((resolve) => setTimeout(resolve, 20));
   }
 
   it('should initialize UI with default idle timer and cycle labels', async () => {
@@ -42,8 +46,7 @@ describe('popup.js UI Integration', () => {
       timerState: { status: 'idle', type: 'work', pomodoroCount: 0, duration: 1500 },
     });
 
-    executePopupScript();
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await executePopupScript();
 
     const timerDisplay = document.getElementById('timer-display');
     expect(timerDisplay.textContent).toBe('25:00');
@@ -67,8 +70,7 @@ describe('popup.js UI Integration', () => {
       timerState: { status: 'idle', type: 'work', pomodoroCount: 0, duration: 1500 },
     });
 
-    executePopupScript();
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await executePopupScript();
 
     const preset15 = document.querySelector('.preset-btn[data-time="15"]');
     preset15.click();
@@ -84,8 +86,7 @@ describe('popup.js UI Integration', () => {
       timerState: { status: 'idle', type: 'work', pomodoroCount: 0, duration: 1500 },
     });
 
-    executePopupScript();
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await executePopupScript();
 
     const startBtn = document.getElementById('start-pause-btn');
     startBtn.click();
@@ -112,8 +113,7 @@ describe('popup.js UI Integration', () => {
       },
     });
 
-    executePopupScript();
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await executePopupScript();
 
     const startBtn = document.getElementById('start-pause-btn');
     expect(startBtn.textContent).toBe('Pause Session');
@@ -135,8 +135,7 @@ describe('popup.js UI Integration', () => {
       ],
     });
 
-    executePopupScript();
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await executePopupScript();
 
     const cells = document.querySelectorAll('.contrib-cell');
     expect(cells.length).toBe(35);
@@ -153,8 +152,7 @@ describe('popup.js UI Integration', () => {
       timerState: { status: 'idle', type: 'shortBreak', pomodoroCount: 2, duration: 300 },
     });
 
-    executePopupScript();
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await executePopupScript();
 
     // Body should have break-mode class
     expect(document.body.className).toContain('break-mode');
@@ -177,8 +175,7 @@ describe('popup.js UI Integration', () => {
       timerState: { status: 'idle', type: 'work', pomodoroCount: 1, duration: 1500 },
     });
 
-    executePopupScript();
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await executePopupScript();
 
     // Click short break mode selector
     const shortBreakModeBtn = document.getElementById('mode-short');

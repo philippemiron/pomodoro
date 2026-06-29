@@ -34,11 +34,12 @@ A simple modern Pomodoro browser extension designed to optimize focus, manage br
 ## Getting Started
 
 Clone this repository:
+
 ```bash
 git clone git@github.com:philippemiron/pomodoro.git
 cd pomodoro
 ```
-   
+
 ### Installation in Chrome/Edge/Brave
 
 - Open Chrome and navigate to `chrome://extensions/`.
@@ -46,18 +47,22 @@ cd pomodoro
 - Click **Load unpacked** and select the root directory (`pomodoro`) containing `manifest.json`.
 
 ### Installation in Firefox
+
 - Open Firefox and navigate to `about:debugging`.
 - Click on **This Firefox** in the left sidebar.
 - Click **Load Temporary Add-on...** under the **Temporary Extensions** section.
 - Select the [manifest.json](manifest.json) file in the root directory.
 
 ### Development & Scripts
+
 Install dependencies:
+
 ```bash
 npm install
 ```
 
 Available npm scripts:
+
 - `npm run test`: Run the tests once.
 - `npm run test:watch`: Run tests in watch mode.
 - `npm run lint`: Lint the codebase.
